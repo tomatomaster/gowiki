@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>simplpechat</title>
+</head>
+
+<body>
+    <div>
+        <ul>
+            {{range $i, $v := .Logs}}
+            <li>
+                {{$v}}
+            </li>
+            {{end}}
+        </ul>
+    </div>
+    <form>
+        <p>
+            <label>名前：
+                <input type="text" name="name" size="10" maxlength="10">
+            </label>
+            <label>投稿：
+                <input type="text" name="chat" size="100" maxlength="100">
+            </label>
+        </p>
+        <p>
+            <input type="submit" value="post">
+        </p>
+    </form>
+</body>
+
+</html>
