@@ -6,17 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{.Title}}</title>
-    <style>
-        body {
-            background: #8b8b8b;
-            font-family: 'Times New Roman', Times, serif
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="../templates/basic.css">
 </head>
 
 <body>
     <h1>Editing {{.Title}}</h1>
-
     <form action="/save/{{.Title}}" method="POST">
         <div>
             <textarea name="body" rows="20" cols="80">{{printf "%s" .Body}}</textarea>

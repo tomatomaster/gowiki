@@ -100,6 +100,7 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
+	http.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("templates/"))))
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/edit/", editHandler)
