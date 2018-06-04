@@ -1,0 +1,35 @@
+button.nice-button {
+    border-style: none;
+    background-color: white;
+}
+
+form.inputform {
+    width: 100%;
+    position: fixed;
+    bottom: 0px;
+    z-index: 100;
+    background-color: #4f9611ba
+}
+
+label.labelName {
+    color: white
+}
+label.labelPost {
+    color: white
+}
+
+ul {
+    padding: 0;
+  }
+  
+  ul li, ol li {
+    color: #404040;
+    border-left: solid 6px #1fa67a;/*左側の線*/
+    border-bottom: solid 2px #dadada;/*下に灰色線*/
+    background: whitesmoke;
+    margin-bottom: 5px;/*下のバーとの余白*/
+    line-height: 1.5;
+    padding: 0.5em;
+    list-style-type: none!important;/*ポチ消す*/
+    font-weight: bold;
+  }

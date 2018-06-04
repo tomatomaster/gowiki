@@ -10,10 +10,10 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 )
 
 const pageStoredPath = "data/"
+const separator = string(0x1f)
 
 var templates = template.Must(template.ParseFiles("templates/edit.html", "templates/view.html", "templates/chat.html"))
 var validPath = regexp.MustCompile("^/(edit|save|view|chat)/([a-zA-Z0-9]+)$")
@@ -33,12 +33,11 @@ func (p *Page) save() error {
 type ChatLog struct {
 	Name    string
 	Comment string
-	Date    string
 }
 
 // ViewLog shows all Chatlog
 type ViewLog struct {
-	Logs []string
+	Logs []ChatLog
 }
 
 func (c ChatLog) saveLog() error {
@@ -47,7 +46,7 @@ func (c ChatLog) saveLog() error {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	logFormat := fmt.Sprintf("%s【%s】%s\n", c.Date, c.Name, c.Comment)
+	logFormat := fmt.Sprintf("%s%s%s\n", c.Name, separator, c.Comment)
 	_, err = f.Write([]byte(logFormat))
 	return err
 }
@@ -58,17 +57,33 @@ func (c ChatLog) readAllLog() *ViewLog {
 		log.Fatal(err)
 	}
 	viewLog := new(ViewLog)
-	for _, line := range strings.Split(string(logs), "\n") {
-		viewLog.Logs = append(viewLog.Logs, line)
+	if len(logs) == 0 {
+		return viewLog
 	}
-	viewLog.Logs = viewLog.Logs[:len(viewLog.Logs)-1]
-
+	for _, line := range strings.Split(string(logs), "\n") {
+		if strings.EqualFold(line, "") {
+			break
+		}
+		data := strings.Split(line, separator)
+		name := data[0]
+		comment := data[1]
+		viewLog.Logs = append([]ChatLog{ChatLog{Name: name, Comment: comment}}, viewLog.Logs...)
+		viewLog.Logs = append(viewLog.Logs, ChatLog{Name: name, Comment: comment})
+	}
+	viewLog.Logs = viewLog.Logs[:len(viewLog.Logs)]
 	return viewLog
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {
-	chatLog := ChatLog{Name: r.FormValue("name"), Comment: r.FormValue("chat"), Date: time.Now().Format(time.Stamp)}
-	chatLog.saveLog()
+	name := r.FormValue("name")
+	if strings.EqualFold(name, "") {
+		name = "名無しさん"
+	}
+	comment := r.FormValue("chat")
+	chatLog := ChatLog{Name: name, Comment: comment}
+	if !strings.EqualFold(comment, "") {
+		chatLog.saveLog()
+	}
 	viewLog := chatLog.readAllLog()
 	renderChatTemplate(w, "chat", viewLog)
 }
@@ -123,7 +138,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/view/FrontPage", http.StatusFound)
+	http.Redirect(w, r, "/chat", http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
