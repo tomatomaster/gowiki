@@ -52,7 +52,7 @@ func (c ChatLog) saveLog() error {
 }
 
 func (c ChatLog) readAllLog() *ViewLog {
-	logs, err := ioutil.ReadFile(pageStoredPath + "chatLog")
+	logs, err := ioutil.ReadFile(pageStoredPath + "chatlog")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +68,6 @@ func (c ChatLog) readAllLog() *ViewLog {
 		name := data[0]
 		comment := data[1]
 		viewLog.Logs = append([]ChatLog{ChatLog{Name: name, Comment: comment}}, viewLog.Logs...)
-		viewLog.Logs = append(viewLog.Logs, ChatLog{Name: name, Comment: comment})
 	}
 	viewLog.Logs = viewLog.Logs[:len(viewLog.Logs)]
 	return viewLog
