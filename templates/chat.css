@@ -3,6 +3,11 @@ button.nice-button {
     background-color: white;
 }
 
+button.nice-button:hover {
+    box-shadow: none;
+    transform: translate3d(0, 3px, 0);
+}
+
 form.inputform {
     width: 100%;
     position: fixed;
@@ -16,6 +21,10 @@ label.labelName {
 }
 label.labelPost {
     color: white
+}
+
+.name {
+    color: #828286;
 }
 
 ul {
