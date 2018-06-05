@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -29,15 +30,32 @@ func (p *Page) save() error {
 	return ioutil.WriteFile(pageStoredPath+filename, p.Body, 0600)
 }
 
+var idCounter int
+
 // ChatLog is chat log
 type ChatLog struct {
+	ID      int
 	Name    string
 	Comment string
+	Nice    int
+}
+
+func (c *ChatLog) addNice() {
+	c.Nice++
 }
 
 // ViewLog shows all Chatlog
 type ViewLog struct {
 	Logs []ChatLog
+}
+
+func (v *ViewLog) getLog(id int) *ChatLog {
+	for _, log := range v.Logs {
+		if log.ID == id {
+			return &log
+		}
+	}
+	return nil
 }
 
 func (c ChatLog) saveLog() error {
@@ -46,7 +64,7 @@ func (c ChatLog) saveLog() error {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	logFormat := fmt.Sprintf("%s%s%s\n", c.Name, separator, c.Comment)
+	logFormat := fmt.Sprintf("%d%s%s%s%s%s%d\n", c.ID, separator, c.Name, separator, c.Comment, separator, c.Nice)
 	_, err = f.Write([]byte(logFormat))
 	return err
 }
@@ -65,25 +83,39 @@ func (c ChatLog) readAllLog() *ViewLog {
 			break
 		}
 		data := strings.Split(line, separator)
-		name := data[0]
-		comment := data[1]
-		viewLog.Logs = append([]ChatLog{ChatLog{Name: name, Comment: comment}}, viewLog.Logs...)
+		idStr := data[0]
+		idInt, _ := strconv.Atoi(idStr)
+		name := data[1]
+		comment := data[2]
+		niceStr := data[3]
+		niceInt, _ := strconv.Atoi(niceStr)
+		viewLog.Logs = append([]ChatLog{ChatLog{ID: idInt, Name: name, Comment: comment, Nice: niceInt}}, viewLog.Logs...)
 	}
 	viewLog.Logs = viewLog.Logs[:len(viewLog.Logs)]
 	return viewLog
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {
+	charLogIDStr := r.FormValue("count")
+	id, _ := strconv.Atoi(charLogIDStr)
+
 	name := r.FormValue("name")
 	if strings.EqualFold(name, "") {
 		name = "名無しさん"
 	}
 	comment := r.FormValue("chat")
-	chatLog := ChatLog{Name: name, Comment: comment}
+	idCounter++
+	chatLog := ChatLog{ID: idCounter, Name: name, Comment: comment}
 	if !strings.EqualFold(comment, "") {
 		chatLog.saveLog()
 	}
 	viewLog := chatLog.readAllLog()
+
+	log := viewLog.getLog(id)
+	if log != nil {
+		log.addNice()
+	}
+
 	renderChatTemplate(w, "chat", viewLog)
 }
 

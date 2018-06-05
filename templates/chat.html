@@ -16,9 +16,11 @@
             <li>
                 <div class="name">{{$chat.Name}}</div>
                 <div class="comment">{{$chat.Comment}}
-                    <button class="nice-button" type="submit" value=count{{$i}}>
-                        <font size=" 2 ">👍</font>
-                    </button>
+                    <form>
+                        <button class="nice-button" type="submit" name="count" value="{{$i}}">
+                            <font size=" 2 ">👍+{{$chat.Nice}}</font>
+                        </button>
+                    </form>
                 </div>
             </li>
             {{end}}
@@ -34,7 +36,6 @@
             </label>
             <input type="submit" value="post">
         </p>
-
     </form>
 </body>
 
