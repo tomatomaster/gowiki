@@ -13,7 +13,7 @@ import (
 )
 
 const pageStoredPath = "data/"
-const separator = string(0x1f)
+const separator = string(0x1e)
 
 var templates = template.Must(template.ParseFiles("templates/edit.html", "templates/view.html", "templates/chat.html"))
 var validPath = regexp.MustCompile("^/(edit|save|view|chat)/([a-zA-Z0-9]+)$")
