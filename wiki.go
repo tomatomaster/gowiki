@@ -69,7 +69,7 @@ func (c ChatLog) saveLog() error {
 	return err
 }
 
-func (c ChatLog) readAllLog() *ViewLog {
+func readAllLog() *ViewLog {
 	logs, err := ioutil.ReadFile(pageStoredPath + "chatlog")
 	if err != nil {
 		log.Fatal(err)
@@ -96,26 +96,27 @@ func (c ChatLog) readAllLog() *ViewLog {
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {
-	charLogIDStr := r.FormValue("count")
-	id, _ := strconv.Atoi(charLogIDStr)
-
-	name := r.FormValue("name")
-	if strings.EqualFold(name, "") {
-		name = "名無しさん"
-	}
 	comment := r.FormValue("chat")
-	idCounter++
-	chatLog := ChatLog{ID: idCounter, Name: name, Comment: comment}
+	name := r.FormValue("name")
+	charLogIDStr := r.FormValue("count")
+	viewLog := readAllLog()
+	fmt.Printf("%s %s %s", comment, name, charLogIDStr)
 	if !strings.EqualFold(comment, "") {
+		idCounter++
+		if strings.EqualFold(name, "") {
+			name = "名無しさん"
+		}
+		chatLog := ChatLog{ID: idCounter, Name: name, Comment: comment}
 		chatLog.saveLog()
+	} else if !strings.EqualFold(charLogIDStr, "") {
+		id, _ := strconv.Atoi(charLogIDStr)
+		log := viewLog.getLog(id)
+		if log != nil {
+			log.addNice()
+			log.saveLog()
+		}
 	}
-	viewLog := chatLog.readAllLog()
-
-	log := viewLog.getLog(id)
-	if log != nil {
-		log.addNice()
-	}
-
+	viewLog = readAllLog()
 	renderChatTemplate(w, "chat", viewLog)
 }
 
