@@ -31,6 +31,7 @@ func (p *Page) save() error {
 }
 
 var idCounter int
+var viewLog ViewLog
 
 // ChatLog is chat log
 type ChatLog struct {
@@ -56,6 +57,12 @@ func (v *ViewLog) getLog(id int) *ChatLog {
 		}
 	}
 	return nil
+}
+
+func (v *ViewLog) addLog(c ChatLog) *ViewLog {
+	v.Logs = append(v.Logs, c)
+	idCounter++
+	return v
 }
 
 func (c ChatLog) saveLog() error {
@@ -99,25 +106,23 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("chat")
 	name := r.FormValue("name")
 	charLogIDStr := r.FormValue("count")
-	viewLog := readAllLog()
-	fmt.Printf("%s %s %s", comment, name, charLogIDStr)
 	if !strings.EqualFold(comment, "") {
-		idCounter++
 		if strings.EqualFold(name, "") {
 			name = "名無しさん"
 		}
 		chatLog := ChatLog{ID: idCounter, Name: name, Comment: comment}
-		chatLog.saveLog()
+		fmt.Printf("add chatLog %v", chatLog)
+		viewLog.addLog(chatLog)
+		idCounter++
 	} else if !strings.EqualFold(charLogIDStr, "") {
 		id, _ := strconv.Atoi(charLogIDStr)
 		log := viewLog.getLog(id)
 		if log != nil {
 			log.addNice()
-			log.saveLog()
+			fmt.Printf("%v", viewLog.Logs)
 		}
 	}
-	viewLog = readAllLog()
-	renderChatTemplate(w, "chat", viewLog)
+	renderChatTemplate(w, "chat", &viewLog)
 }
 
 func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
