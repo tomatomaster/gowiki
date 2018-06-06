@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -83,9 +82,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 			viewLog.addNice(id)
 		}
 	}
-	fmt.Printf("%v\n", viewLog)
 	sort.Sort(viewLog)
-	fmt.Printf("%v\n", viewLog)
 	renderChatTemplate(w, "chat", &viewLog)
 }
 

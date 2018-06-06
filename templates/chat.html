@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div>
+    <div class="CommentSpace">
         <ul>
             {{range $i, $chat := .Logs}}
             <li>
@@ -26,17 +26,19 @@
             {{end}}
         </ul>
     </div>
-    <form class="inputform">
-        <p>
-            <label class="labelName">名前：
-                <input type="text" name="name" size="15" maxlength="10">
-            </label>
-            <label class="labelPost">投稿：
-                <input type="text" name="chat" size="100" maxlength="100">
-            </label>
-            <input type="submit" value="post">
-        </p>
-    </form>
+    <div class="InputSpace">
+        <form class="inputform">
+            <p>
+                <label class="labelName">名前：
+                    <input type="text" name="name" size="15" maxlength="10">
+                </label>
+                <label class="labelPost">投稿：
+                    <input type="text" name="chat" size="100" maxlength="100">
+                </label>
+                <input type="submit" value="post">
+            </p>
+        </form>
+    </div>
 </body>
 
 </html>
