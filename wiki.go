@@ -66,32 +66,6 @@ func (v *ViewLog) addLog(c ChatLog) *ViewLog {
 	return v
 }
 
-func readAllLog() *ViewLog {
-	logs, err := ioutil.ReadFile(pageStoredPath + "chatlog")
-	if err != nil {
-		log.Fatal(err)
-	}
-	viewLog := new(ViewLog)
-	if len(logs) == 0 {
-		return viewLog
-	}
-	for _, line := range strings.Split(string(logs), "\n") {
-		if strings.EqualFold(line, "") {
-			break
-		}
-		data := strings.Split(line, separator)
-		idStr := data[0]
-		idInt, _ := strconv.Atoi(idStr)
-		name := data[1]
-		comment := data[2]
-		niceStr := data[3]
-		niceInt, _ := strconv.Atoi(niceStr)
-		viewLog.Logs = append([]ChatLog{ChatLog{ID: idInt, Name: name, Comment: comment, Nice: niceInt}}, viewLog.Logs...)
-	}
-	viewLog.Logs = viewLog.Logs[:len(viewLog.Logs)]
-	return viewLog
-}
-
 func chatHandler(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("chat")
 	name := r.FormValue("name")
