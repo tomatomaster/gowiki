@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -39,7 +40,7 @@ type ChatLog struct {
 	Nice    int
 }
 
-func (c *ChatLog) addNice() {
+func (c ChatLog) addNice() {
 	c.Nice++
 }
 
@@ -47,6 +48,18 @@ func (c *ChatLog) addNice() {
 type ViewLog struct {
 	idcounter int
 	Logs      []ChatLog
+}
+
+func (v ViewLog) Len() int {
+	return len(v.Logs)
+}
+
+func (v ViewLog) Less(i, j int) bool {
+	return v.Logs[i].Nice > v.Logs[j].Nice
+}
+
+func (v ViewLog) Swap(i, j int) {
+	v.Logs[i], v.Logs[j] = v.Logs[j], v.Logs[i]
 }
 
 func (v *ViewLog) getLog(id int) *ChatLog {
@@ -65,6 +78,10 @@ func (v *ViewLog) addLog(c ChatLog) *ViewLog {
 	return v
 }
 
+func (v ViewLog) addNice(id int) {
+	v.Logs[id].Nice++
+}
+
 func chatHandler(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("chat")
 	name := r.FormValue("name")
@@ -74,16 +91,18 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 			name = "名無しさん"
 		}
 		chatLog := ChatLog{Name: name, Comment: comment}
-		fmt.Printf("add chatLog %v", chatLog)
 		viewLog.addLog(chatLog)
 	} else if !strings.EqualFold(charLogIDStr, "") {
 		id, _ := strconv.Atoi(charLogIDStr)
 		log := viewLog.getLog(id)
 		if log != nil {
 			log.addNice()
-			fmt.Printf("%v", viewLog.Logs)
+			viewLog.addNice(id)
 		}
 	}
+	fmt.Printf("%v\n", viewLog)
+	sort.Sort(viewLog)
+	fmt.Printf("%v\n", viewLog)
 	renderChatTemplate(w, "chat", &viewLog)
 }
 
