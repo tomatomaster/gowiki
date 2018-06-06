@@ -116,15 +116,6 @@ func renderChatTemplate(w http.ResponseWriter, tmpl string, d *ViewLog) {
 	}
 }
 
-func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
-	body, error := ioutil.ReadFile(pageStoredPath + filename)
-	if error != nil {
-		return nil, error
-	}
-	return &Page{Title: title, Body: body}, nil
-}
-
 func main() {
 	http.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("templates/"))))
 	http.HandleFunc("/", rootHandler)
