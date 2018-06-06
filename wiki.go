@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -65,17 +64,6 @@ func (v *ViewLog) addLog(c ChatLog) *ViewLog {
 	v.Logs = append(v.Logs, c)
 	v.idcounter++
 	return v
-}
-
-func (c ChatLog) saveLog() error {
-	f, err := os.OpenFile(pageStoredPath+"chatLog", os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	logFormat := fmt.Sprintf("%d%s%s%s%s%s%d\n", c.ID, separator, c.Name, separator, c.Comment, separator, c.Nice)
-	_, err = f.Write([]byte(logFormat))
-	return err
 }
 
 func readAllLog() *ViewLog {
