@@ -1,10 +1,8 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -13,23 +11,8 @@ import (
 	"strings"
 )
 
-const pageStoredPath = "data/"
-const separator = string(0x1e)
-
-var templates = template.Must(template.ParseFiles("templates/edit.html", "templates/view.html", "templates/chat.html"))
+var templates = template.Must(template.ParseFiles("templates/chat.html"))
 var validPath = regexp.MustCompile("^/(edit|save|view|chat)/([a-zA-Z0-9]+)$")
-
-// Page is wikipage
-type Page struct {
-	Title string
-	Body  []byte
-}
-
-func (p *Page) save() error {
-	filename := p.Title + ".txt"
-	return ioutil.WriteFile(pageStoredPath+filename, p.Body, 0600)
-}
-
 var viewLog ViewLog
 
 // ChatLog is chat log
@@ -106,24 +89,8 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 	renderChatTemplate(w, "chat", &viewLog)
 }
 
-func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	if m == nil {
-		http.NotFound(w, r)
-		return "", errors.New("Invalid Page Title")
-	}
-	return m[2], nil
-}
-
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/chat", http.StatusFound)
-}
-
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
 
 func renderChatTemplate(w http.ResponseWriter, tmpl string, d *ViewLog) {
