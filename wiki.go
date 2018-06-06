@@ -29,7 +29,6 @@ func (p *Page) save() error {
 	return ioutil.WriteFile(pageStoredPath+filename, p.Body, 0600)
 }
 
-var idCounter int
 var viewLog ViewLog
 
 // ChatLog is chat log
@@ -77,7 +76,6 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 		chatLog := ChatLog{Name: name, Comment: comment}
 		fmt.Printf("add chatLog %v", chatLog)
 		viewLog.addLog(chatLog)
-		idCounter++
 	} else if !strings.EqualFold(charLogIDStr, "") {
 		id, _ := strconv.Atoi(charLogIDStr)
 		log := viewLog.getLog(id)
