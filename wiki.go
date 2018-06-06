@@ -47,7 +47,8 @@ func (c *ChatLog) addNice() {
 
 // ViewLog shows all Chatlog
 type ViewLog struct {
-	Logs []ChatLog
+	idcounter int
+	Logs      []ChatLog
 }
 
 func (v *ViewLog) getLog(id int) *ChatLog {
@@ -60,8 +61,9 @@ func (v *ViewLog) getLog(id int) *ChatLog {
 }
 
 func (v *ViewLog) addLog(c ChatLog) *ViewLog {
+	c.ID = v.idcounter
 	v.Logs = append(v.Logs, c)
-	idCounter++
+	v.idcounter++
 	return v
 }
 
@@ -110,7 +112,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 		if strings.EqualFold(name, "") {
 			name = "名無しさん"
 		}
-		chatLog := ChatLog{ID: idCounter, Name: name, Comment: comment}
+		chatLog := ChatLog{Name: name, Comment: comment}
 		fmt.Printf("add chatLog %v", chatLog)
 		viewLog.addLog(chatLog)
 		idCounter++
@@ -132,46 +134,6 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 		return "", errors.New("Invalid Page Title")
 	}
 	return m[2], nil
-}
-
-func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
-	p, err := loadPage(title)
-	if err != nil {
-		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
-	}
-	renderTemplate(w, "view", p)
-}
-
-func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
-	body := r.FormValue("body")
-	p := &Page{Title: title, Body: []byte(body)}
-	err = p.save()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.Redirect(w, r, "/view/"+title, http.StatusFound)
-}
-
-func editHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
-	p, err := loadPage(title)
-	if err != nil {
-		p = &Page{Title: title}
-	}
-	renderTemplate(w, "edit", p)
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -205,8 +167,5 @@ func main() {
 	http.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("templates/"))))
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/chat/", chatHandler)
-	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/edit/", editHandler)
-	http.HandleFunc("/save/", saveHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
